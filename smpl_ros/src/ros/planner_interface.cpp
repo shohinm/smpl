@@ -689,6 +689,57 @@ bool WritePath(
     return true;
 }
 
+bool PlannerInterface::checkStart(
+    // TODO: this planning scene is probably not being used in any meaningful way
+    const moveit_msgs::PlanningScene& planning_scene,
+    const moveit_msgs::MotionPlanRequest& req,
+    moveit_msgs::MotionPlanResponse& res)
+{
+    ClearMotionPlanResponse(req, res);
+
+    if (!m_initialized) {
+        res.error_code.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+        return false;
+    }
+
+    // if (!canServiceRequest(req, res)) {
+    //     return false;
+    // }
+
+    // if (req.goal_constraints.empty()) {
+    //     SMPL_WARN_NAMED(PI_LOGGER, "No goal constraints in request!");
+    //     res.error_code.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+    //     return true;
+    // }
+
+    // TODO: lazily reinitialize planner when algorithm changes
+    if (!reinitPlanner(req.planner_id)) {
+        res.error_code.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+        return false;
+    }
+
+    // res.trajectory_start = planning_scene.robot_state;
+    // SMPL_INFO_NAMED(PI_LOGGER, "Allowed Time (s): %0.3f", req.allowed_planning_time);
+
+    auto then = clock::now();
+
+    // if (!setGoal(req.goal_constraints)) {
+    //     SMPL_ERROR("Failed to set goal");
+    //     res.planning_time = to_seconds(clock::now() - then);
+    //     res.error_code.val = moveit_msgs::MoveItErrorCodes::GOAL_IN_COLLISION;
+    //     return false;
+    // }
+
+    if (!setStart(req.start_state)) {
+        // SMPL_ERROR("Failed to set initial configuration of robot");
+        // res.planning_time = to_seconds(clock::now() - then);
+        // res.error_code.val = moveit_msgs::MoveItErrorCodes::START_STATE_IN_COLLISION;
+        return false;
+    }
+
+    return true;
+}
+
 bool PlannerInterface::solve(
     // TODO: this planning scene is probably not being used in any meaningful way
     const moveit_msgs::PlanningScene& planning_scene,

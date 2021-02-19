@@ -91,6 +91,11 @@ public:
 
     bool init(const PlanningParams& params);
 
+    bool checkStart(
+        const moveit_msgs::PlanningScene& planning_scene,
+        const moveit_msgs::MotionPlanRequest& req,
+        moveit_msgs::MotionPlanResponse& res);
+
     bool solve(
         const moveit_msgs::PlanningScene& planning_scene,
         const moveit_msgs::MotionPlanRequest& req,
@@ -139,6 +144,7 @@ public:
     auto makePathVisualization(const std::vector<RobotState>& path) const
         -> std::vector<visual::Marker>;
     ///@}
+
 
 protected:
 
