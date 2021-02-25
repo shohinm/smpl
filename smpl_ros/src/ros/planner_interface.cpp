@@ -504,7 +504,7 @@ void ProfilePath(RobotModel* robot, trajectory_msgs::JointTrajectory& traj)
             max_time = std::max(max_time, t);
         }
 
-        curr_point.time_from_start = prev_point.time_from_start + ros::Duration(max_time);
+        curr_point.time_from_start = prev_point.time_from_start + ros::Duration(3*max_time);
     }
 }
 
@@ -702,15 +702,15 @@ bool PlannerInterface::checkStart(
         return false;
     }
 
-    // if (!canServiceRequest(req, res)) {
-    //     return false;
-    // }
+    if (!canServiceRequest(req, res)) {
+        return false;
+    }
 
-    // if (req.goal_constraints.empty()) {
-    //     SMPL_WARN_NAMED(PI_LOGGER, "No goal constraints in request!");
-    //     res.error_code.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
-    //     return true;
-    // }
+    if (req.goal_constraints.empty()) {
+        SMPL_WARN_NAMED(PI_LOGGER, "No goal constraints in request!");
+        res.error_code.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+        return true;
+    }
 
     // TODO: lazily reinitialize planner when algorithm changes
     if (!reinitPlanner(req.planner_id)) {
@@ -723,12 +723,12 @@ bool PlannerInterface::checkStart(
 
     auto then = clock::now();
 
-    // if (!setGoal(req.goal_constraints)) {
-    //     SMPL_ERROR("Failed to set goal");
-    //     res.planning_time = to_seconds(clock::now() - then);
-    //     res.error_code.val = moveit_msgs::MoveItErrorCodes::GOAL_IN_COLLISION;
-    //     return false;
-    // }
+    if (!setGoal(req.goal_constraints)) {
+        SMPL_ERROR("Failed to set goal");
+        res.planning_time = to_seconds(clock::now() - then);
+        res.error_code.val = moveit_msgs::MoveItErrorCodes::GOAL_IN_COLLISION;
+        return false;
+    }
 
     if (!setStart(req.start_state)) {
         // SMPL_ERROR("Failed to set initial configuration of robot");
