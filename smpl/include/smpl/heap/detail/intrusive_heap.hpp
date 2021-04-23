@@ -176,8 +176,8 @@ template <class T, class Compare>
 void intrusive_heap<T, Compare>::update(T* e)
 {
     assert(e && contains(e));
-    erase(e);
-    push(e);
+    percolate_up(e->m_heap_index);
+    percolate_down(e->m_heap_index);
 }
 
 template <typename T, class Compare>
@@ -203,7 +203,7 @@ void intrusive_heap<T, Compare>::erase(T* e)
     m_data[pos]->m_heap_index = pos;
     e->m_heap_index = 0;
     m_data.pop_back();
-    percolate_down(pos);
+    update(m_data[pos]);
 }
 
 template <class T, class Compare>
@@ -434,7 +434,7 @@ bool intrusive_heap<T, Compare>::check_heap(size_type index) const
         }
 
         // check the tree rooted at the right child
-        if (!check_heap(heap, right)) {
+        if (!check_heap(right)) {
             return false;
         }
     }
@@ -447,7 +447,7 @@ bool intrusive_heap<T, Compare>::check_heap(size_type index) const
         }
 
         // check the tree rooted at the left child
-        if (!check_heap(heap, left)) {
+        if (!check_heap(left)) {
             return false;
         }
     }
@@ -458,11 +458,11 @@ bool intrusive_heap<T, Compare>::check_heap(size_type index) const
 template <class T, class Compare>
 bool intrusive_heap<T, Compare>::check_heap() const
 {
-    if (heap.empty()) {
+    if (empty()) {
         return true;
     }
 
-    return heap.check_heap(1);
+    return check_heap(1);
 }
 
 template <class T, class Compare>
