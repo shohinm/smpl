@@ -148,6 +148,9 @@ private:
     bool is_external(size_type index) const;
 
     void print() const;
+
+    bool check_heap() const;
+    bool check_heap(size_type index) const;
 };
 
 template <class T, class Compare>

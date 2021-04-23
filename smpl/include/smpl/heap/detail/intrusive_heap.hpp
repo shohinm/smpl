@@ -424,6 +424,48 @@ void intrusive_heap<T, Compare>::print() const
 }
 
 template <class T, class Compare>
+bool intrusive_heap<T, Compare>::check_heap(size_type index) const
+{
+    auto right = right_child(index);
+    if (is_internal(right)) {
+        // check the ordering of the parent and the right child
+        if (!m_comp(*m_data[index], *m_data[right])) {
+            return false;
+        }
+
+        // check the tree rooted at the right child
+        if (!check_heap(heap, right)) {
+            return false;
+        }
+    }
+
+    auto left = left_child(index);
+    if (is_internal(left)) {
+        // check the ordering of the parent and the left child
+        if (!m_comp(*m_data[index], *m_data[left])) {
+            return false;
+        }
+
+        // check the tree rooted at the left child
+        if (!check_heap(heap, left)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template <class T, class Compare>
+bool intrusive_heap<T, Compare>::check_heap() const
+{
+    if (heap.empty()) {
+        return true;
+    }
+
+    return heap.check_heap(1);
+}
+
+template <class T, class Compare>
 void swap(intrusive_heap<T, Compare>& lhs, intrusive_heap<T, Compare>& rhs)
 {
     lhs.swap(rhs);
